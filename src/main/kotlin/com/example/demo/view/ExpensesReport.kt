@@ -1,6 +1,8 @@
 package com.example.demo.view
 
-import com.example.demo.controller.ItemController
+//import com.example.demo.controller.ItemController
+import com.example.demo.controller.LoginController
+import com.example.demo.model.ExpensesEntryJsonModel
 import com.example.demo.model.ExpensesEntryModel
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleDoubleProperty
@@ -21,10 +23,12 @@ import java.time.LocalDate
  * The user can filter the report by selecting different time periods from the combo box.
  */
 class ExpensesReport : View("Report") {
-    val controller : ItemController by inject()
+//    val controller : ItemController by inject()
+    val controller : LoginController by inject()
     var comboBox: ComboBox<String> by singleAssign()
 
-    private var listOfItems: ObservableList<ExpensesEntryModel> by singleAssign()
+//    private var listOfItems: ObservableList<ExpensesEntryJsonModel> by singleAssign()
+    private var listOfItems: ObservableList<ExpensesEntryJsonModel> by singleAssign()
     private var pieData = FXCollections.observableArrayList<PieChart.Data>()
 
     private var totalExpensesLabel: Label by singleAssign()
@@ -73,11 +77,11 @@ class ExpensesReport : View("Report") {
             paddingBottom = 20.0
             paddingTop = 20.0
 //            paddingLeft = 20.0
-            tableview<ExpensesEntryModel> {
+            tableview<ExpensesEntryJsonModel> {
                 items = listOfItems
-                column("Entry Date:", ExpensesEntryModel::entryDate)
-                column("Item", ExpensesEntryModel::itemName)
-                column("Price", ExpensesEntryModel::itemPrice)
+                column("Entry Date:", ExpensesEntryJsonModel::entryDate)
+                column("Item", ExpensesEntryJsonModel::itemName)
+                column("Price", ExpensesEntryJsonModel::itemPrice)
             }
         }
 

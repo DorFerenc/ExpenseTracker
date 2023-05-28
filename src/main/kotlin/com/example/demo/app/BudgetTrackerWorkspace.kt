@@ -1,9 +1,9 @@
 package com.example.demo.app
 
-import com.example.demo.controller.ItemController
+//import com.example.demo.controller.ItemController
 import com.example.demo.controller.LoginController
-import com.example.demo.util.createTables
-import com.example.demo.util.enableConsoleLogger
+//import com.example.demo.util.createTables
+//import com.example.demo.util.enableConsoleLogger
 import com.example.demo.view.ExpensesEditor
 import com.example.demo.view.ExpensesReport
 import com.example.demo.view.LoginScreen
@@ -29,12 +29,12 @@ class BudgetTrackerWorkspace : Workspace("Budget Tracker Workerspace", Navigatio
 
     init {
         // Enable console logging and set up the database
-        enableConsoleLogger()
+//        enableConsoleLogger()
         Database.connect("jdbc:sqlite:./app-budget-tracker.db", "org.sqlite.JDBC")
-        createTables()
+//        createTables()
 
         // Initialize the controllers
-        ItemController()
+//        ItemController()
         LoginController()
 
 

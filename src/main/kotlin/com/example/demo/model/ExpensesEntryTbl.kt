@@ -45,6 +45,18 @@ class ExpensesEntryJson: JsonModel {
 
     var totalExpenses = Bindings.add(itemPriceProperty, 0)
 
+    // Primary constructor
+    constructor() {
+    }
+
+    // Secondary constructor
+    constructor(id: Int, entryDate: LocalDate, itemName: String, itemPrice: Double) {
+        this.id = id
+        this.entryDate = entryDate
+        this.itemName = itemName
+        this.itemPrice = itemPrice
+    }
+
     /**
      * Updates the ExpensesEntryJson model with data from a JsonObject.
      * @param json The JsonObject containing city data.
@@ -67,7 +79,19 @@ class ExpensesEntryJsonModel : ItemViewModel<ExpensesEntryJson>() {
     val entryDate =  bind(ExpensesEntryJson::entryDateProperty)
     val itemName = bind(ExpensesEntryJson::itemNameProperty)
     val itemPrice =  bind(ExpensesEntryJson::itemPriceProperty)
+    var totalExpenses = itemProperty.select(ExpensesEntryJson::totalExpenses)
 }
+
+///**
+// * Represents the model for an expense entry.
+// */
+//class ExpensesEntryModel: ItemViewModel<ExpensesEntry>() {
+//    val id = bind { item?.idProperty }
+//    val entryDate = bind { item?.entryDateProperty }
+//    val itemName = bind { item?.itemNameProperty }
+//    val itemPrice = bind { item?.itemPriceProperty }
+//    var totalExpenses = itemProperty.select(ExpensesEntry::totalExpenses)
+//}
 
 /**
  * Represents an expense entry.

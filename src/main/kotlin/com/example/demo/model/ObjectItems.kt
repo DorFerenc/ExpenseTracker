@@ -10,6 +10,9 @@ import javax.json.JsonObject
 
 class ObjectItems: JsonModel {
 
+    val objectIdProperty = SimpleObjectProperty<ObjectId>()
+    var objectId: ObjectId by objectIdProperty
+
     val typeProperty = SimpleStringProperty()
     var type: String? by typeProperty
 
@@ -33,6 +36,7 @@ class ObjectItems: JsonModel {
 
     override fun updateModel(json: JsonObject) {
         with(json) {
+            objectId = getJsonObject("objectId").toModel()
             type = getString("type")
             alias = getString("alias")
             active = getBoolean("active")

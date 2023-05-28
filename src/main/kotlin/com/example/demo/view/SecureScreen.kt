@@ -28,11 +28,11 @@ class SecureScreen : View(screenTitle) {
                 hbox {
                     alignment = Pos.CENTER
 
-                    button(logoutLabel) {
-                        setOnAction {
-                            loginController.logout()
-                        }
-                    }
+//                    button(logoutLabel) {
+//                        setOnAction {
+//                            loginController.logout()
+//                        }
+//                    }
 
                     button(exitLabel) {
                         setOnAction {

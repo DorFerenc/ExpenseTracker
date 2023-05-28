@@ -1,7 +1,9 @@
 package com.example.demo.view
 
 import com.example.demo.app.BudgetTrackerWorkspace
-import com.example.demo.controller.ItemController
+//import com.example.demo.controller.ItemController
+import com.example.demo.controller.LoginController
+import com.example.demo.model.ExpensesEntryJsonModel
 import com.example.demo.model.ExpensesEntryModel
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleDoubleProperty
@@ -23,10 +25,11 @@ class ExpensesEditor : View("Expenses") {
 
     // Controller and model instances
     private val model = ExpensesEntryModel()
-    private val controller: ItemController by inject()
+//    private val controller: ItemController by inject()
+    private val controller: LoginController by inject()
 
     // UI Components
-    private var mTableView: TableViewEditModel<ExpensesEntryModel> by singleAssign()
+    private var mTableView: TableViewEditModel<ExpensesEntryJsonModel> by singleAssign()
     private var totalExpensesLabel: Label by singleAssign()
     private val totalExpensesProperty = SimpleDoubleProperty(0.0)
 
@@ -148,13 +151,13 @@ class ExpensesEditor : View("Expenses") {
                 // table view to see the results
                 fieldset {
                     vboxConstraints { marginTop = 20.0 }
-                    tableview<ExpensesEntryModel> {
+                    tableview<ExpensesEntryJsonModel> {
                         items = controller.items
                         mTableView = editModel // connecting  mTable to this table and enabling to edit
-                        column("ID", ExpensesEntryModel::id)
-                        column("Added", ExpensesEntryModel::entryDate).makeEditable()
-                        column("Name", ExpensesEntryModel::itemName).makeEditable()
-                        column("Price", ExpensesEntryModel::itemPrice).makeEditable()
+                        column("ID", ExpensesEntryJsonModel::id)
+                        column("Added", ExpensesEntryJsonModel::entryDate).makeEditable()
+                        column("Name", ExpensesEntryJsonModel::itemName).makeEditable()
+                        column("Price", ExpensesEntryJsonModel::itemPrice).makeEditable()
 
                         onEditCommit {
                             controller.update(it)
@@ -213,6 +216,7 @@ class ExpensesEditor : View("Expenses") {
      */
     private fun addItem() {
         controller.add(model.entryDate.value, model.itemName.value, model.itemPrice.value.toDouble())
+//        controller2.add(model.entryDate.value, model.itemName.value, model.itemPrice.value.toDouble())
         updateTotalExpenses()
     }
 

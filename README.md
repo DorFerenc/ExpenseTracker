@@ -1,7 +1,7 @@
 # Expense Tracker
 
 * Expense Tracker is a small desktop application that helps you 
-track your expenses using TornadoFX and SQLite. 
+track your expenses using TornadoFX and REST api. 
 It provides a user-friendly interface for managing expenses and generating reports.
 
 # Getting started:
