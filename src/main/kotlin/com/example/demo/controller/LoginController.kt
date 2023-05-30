@@ -32,6 +32,7 @@ class LoginController : Controller() {
 //    private lateinit var listOfItems: ObservableList<ExpensesEntryJsonModel>
 //    private var listOfItems: ObservableList<ExpensesEntryJsonModel> = FXCollections.observableArrayList()
     private var listOfItems: ObservableList<ExpensesEntryJsonModel> = mutableListOf<ExpensesEntryJsonModel>().asObservable()
+    var allChildsNameAndInternalId: MutableMap<String?, String?> = mutableMapOf()
 
     var shouldInitListOfItems = false
 
@@ -267,11 +268,16 @@ class LoginController : Controller() {
         itemPrice: Double = 0.0,
         type: String = "initialItemsTableObject_$email",
         alias: String = "expenseTrackerINIT_$email",
-        active: Boolean = true
+        active: Boolean = true,
+        shouldCreationTimestamp: Boolean = true
     ): JsonObject {
-        val creationTimestamp2 = OffsetDateTime.now()
-        val formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-        val formattedTimestamp2 = creationTimestamp2.format(formatter2)
+        var formattedTimestamp2: String = ""
+        if (shouldCreationTimestamp) {
+            val creationTimestamp2 = OffsetDateTime.now()
+            val formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+            formattedTimestamp2 = creationTimestamp2.format(formatter2)
+        }
+
 
         val location = JsonBuilder().apply {
             add("lat", 32.1133)
@@ -395,6 +401,10 @@ class LoginController : Controller() {
 //            }
 
             val newEntryAsExpensesEntry = ExpensesEntryJson(lastItemId, newEntryDate, newItem, newPrice)
+
+//            allChildsNameAndInternalId.putAll(allChildrenObjectsList.associate { it.alias to it.objectId.internalObjectId })
+            allChildsNameAndInternalId.put(childObject[0].alias, childObject[0].objectId.internalObjectId)
+
             listOfItems.add(ExpensesEntryJsonModel().apply { item = newEntryAsExpensesEntry })
             pieItemsData.add(PieChart.Data(newItem, newPrice))
 
@@ -420,7 +430,32 @@ class LoginController : Controller() {
      * @return The number of rows affected in the database.
      */
     fun update(updatedItem: ExpensesEntryJsonModel): Int {
-        return 1
+        println("UPDATING: ${updatedItem.itemName.value}")
+
+        val jsonObjectBody = builSuperappObjectBody(
+            currentUserEmail,
+            updatedItem.id.value,
+            updatedItem.entryDate.value,
+            updatedItem.itemName.value,
+            updatedItem.itemPrice.value.toDouble(),
+            "newItem_${currentUserEmail}",
+            "newItem_${updatedItem.itemName.value}",
+            true,
+            false
+        )
+        println(jsonObjectBody) // print the Json sent
+
+        val currentItemInternalId = allChildsNameAndInternalId["newItem_${updatedItem.itemName.value}"]
+        println("/superapp/objects/${superApp}/${currentItemInternalId}?userSuperapp=${superApp}&userEmail=${currentUserEmail}")
+        val response = api.put("/superapp/objects/${superApp}/${currentItemInternalId}?userSuperapp=${superApp}&userEmail=${currentUserEmail}", jsonObjectBody)
+        if (response.ok())  {
+            println("UPDATED Item ${updatedItem.itemName.value} Updating listItems")
+//            initItemsList()
+            return 1
+        }
+        else
+            println("FAILED to update: ${updatedItem.itemName.value}, Status: ${response.status}, code: ${response.statusCode}")
+        return 0
 //        return execute {
 //            ExpensesEntryTbl.update ({ ExpensesEntryTbl.id eq(updatedItem.id.value.toInt()) }) {
 //                it[entryDate] = updatedItem.entryDate.value
@@ -435,6 +470,32 @@ class LoginController : Controller() {
      * @param model The [ExpensesEntryModel] object to be deleted.
      */
     fun delete(model: ExpensesEntryJsonModel) {
+        println("DELETING: ${model.itemName.value}")
+
+        val jsonObjectBody = builSuperappObjectBody(
+            currentUserEmail,
+            model.id.value,
+            model.entryDate.value,
+            model.itemName.value,
+            model.itemPrice.value.toDouble(),
+            "newItem_${currentUserEmail}_deleted",
+            "newItem_${model.itemName.value}_deleted",
+            false,
+            false
+        )
+        println(jsonObjectBody) // print the Json sent
+
+        val currentItemInternalId = allChildsNameAndInternalId["newItem_${model.itemName.value}"]
+        println("/superapp/objects/${superApp}/${currentItemInternalId}?userSuperapp=${superApp}&userEmail=${currentUserEmail}")
+        val response = api.put("/superapp/objects/${superApp}/${currentItemInternalId}?userSuperapp=${superApp}&userEmail=${currentUserEmail}", jsonObjectBody)
+        if (response.ok())  {
+            println("Deleted Item ${model.itemName.value} Updating listItems")
+//            initItemsList()
+            listOfItems.remove(model)
+            removeModelFromPie(model)
+        }
+        else
+            println("FAILED to delete: ${model.itemName.value}, Status: ${response.status}, code: ${response.statusCode}")
 //        execute {
 //            ExpensesEntryTbl.deleteWhere {
 //                ExpensesEntryTbl.id eq(model.id.value.toInt())
@@ -467,7 +528,7 @@ class LoginController : Controller() {
      * Removes an expense entry from the pie chart data.
      * @param model The [ExpensesEntryModel] object to be removed from the pie chart.
      */
-    private fun removeModelFromPie(model: ExpensesEntryModel) {
+    private fun removeModelFromPie(model: ExpensesEntryJsonModel) {
         var currentIndex = 0
         pieItemsData.forEachIndexed { index, data ->
             if (data.name == model.itemName.value && index != -1)
@@ -536,11 +597,18 @@ class LoginController : Controller() {
         val response = api.get("/superapp/objects/${superApp}/${parentInternalObjectId}/children?userSuperapp=${superApp}&userEmail=${currentUserEmail}&size=${num}&page=0")
         if (response.ok()) {
             println("initItemsList -> response ok")
+//            val activeIsTrue = response.list().toModel<ObjectItems>().removeIf { it.active }
+
+            // create the list of allChildrenObjectsList
             val allChildrenObjectsList = response.list().toModel<ObjectItems>()
+            allChildsNameAndInternalId.putAll(allChildrenObjectsList.associate { it.alias to it.objectId.internalObjectId })
+
+            val filteredList = allChildrenObjectsList.filter { it.active }
+
             listOfItems = //: ExpensesEntryJsonModel
-                allChildrenObjectsList.map {
+                filteredList.map {
                     ExpensesEntryJsonModel().apply {
-                        item = it.objectDetails
+                            item = it.objectDetails
                     }
                 }.asObservable()
             println("allChildrenObjectsList: $allChildrenObjectsList, size = ${allChildrenObjectsList.size}")
