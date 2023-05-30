@@ -26,12 +26,6 @@ It provides a user-friendly interface for managing expenses and generating repor
 * Download [Kotlin Plugin](https://plugins.jetbrains.com/plugin/6954-kotlin).
 * You can also just go to `setting`  (ctrl + alt + s) → `Plugins` → search for `Kotlin` and `install`
 
-### 5) Bonus (not an essential): DB browser
-* Download [DB browser for sqlite](https://sqlitebrowser.org/dl/).
-* To be able to see the database.
-* In the DB Browser click `Open Database` (ctrl + O).
-* Navigate to where you dataBase is stored in your computer and click on it to open.
-* Press `Browse Data` to see your data.
 
 ## Configure
 * Go to `Edit Configurations` (On the top row click: `Run` → `Edit Configurations`).

@@ -32,7 +32,7 @@ class LoginController : Controller() {
 //    private lateinit var listOfItems: ObservableList<ExpensesEntryJsonModel>
 //    private var listOfItems: ObservableList<ExpensesEntryJsonModel> = FXCollections.observableArrayList()
     private var listOfItems: ObservableList<ExpensesEntryJsonModel> = mutableListOf<ExpensesEntryJsonModel>().asObservable()
-    var allChildsNameAndInternalId: MutableMap<String?, String?> = mutableMapOf()
+    var allChildsIdAndInternalId: MutableMap<Int?, String?> = mutableMapOf()
 
     var shouldInitListOfItems = false
 
@@ -71,6 +71,7 @@ class LoginController : Controller() {
 
         // Set the base URI for the weather API
         api.baseURI = "http://localhost:8083"
+//        api.baseURI = "http://13.50.168.111:8083"
 //        items = listOfItems
 //        items.forEach {
 //            pieItemsData.add(PieChart.Data(it.itemName.value, it.itemPrice.value.toDouble()))
@@ -209,7 +210,7 @@ class LoginController : Controller() {
     fun getParentSuperAppObject() : Boolean {
         println("WAIT API DADDY")
         val response =
-            api.get("/superapp/objects/search/byType/initialItemsTableObject_$currentUserEmail?userSuperapp=$superApp&userEmail=$currentUserEmail&size=6&page=0")
+            api.get("/superapp/objects/search/byType/initialItemsTableObject_$currentUserEmail?userSuperapp=$superApp&userEmail=$currentUserEmail&size=30&page=0")
 
         if (response.ok()) {
             println("Finding DADDY")
@@ -403,7 +404,7 @@ class LoginController : Controller() {
             val newEntryAsExpensesEntry = ExpensesEntryJson(lastItemId, newEntryDate, newItem, newPrice)
 
 //            allChildsNameAndInternalId.putAll(allChildrenObjectsList.associate { it.alias to it.objectId.internalObjectId })
-            allChildsNameAndInternalId.put(childObject[0].alias, childObject[0].objectId.internalObjectId)
+            allChildsIdAndInternalId.put(childObject[0].objectDetails.id, childObject[0].objectId.internalObjectId)
 
             listOfItems.add(ExpensesEntryJsonModel().apply { item = newEntryAsExpensesEntry })
             pieItemsData.add(PieChart.Data(newItem, newPrice))
@@ -445,7 +446,7 @@ class LoginController : Controller() {
         )
         println(jsonObjectBody) // print the Json sent
 
-        val currentItemInternalId = allChildsNameAndInternalId["newItem_${updatedItem.itemName.value}"]
+        val currentItemInternalId = allChildsIdAndInternalId[updatedItem.id.value]
         println("/superapp/objects/${superApp}/${currentItemInternalId}?userSuperapp=${superApp}&userEmail=${currentUserEmail}")
         val response = api.put("/superapp/objects/${superApp}/${currentItemInternalId}?userSuperapp=${superApp}&userEmail=${currentUserEmail}", jsonObjectBody)
         if (response.ok())  {
@@ -485,7 +486,7 @@ class LoginController : Controller() {
         )
         println(jsonObjectBody) // print the Json sent
 
-        val currentItemInternalId = allChildsNameAndInternalId["newItem_${model.itemName.value}"]
+        val currentItemInternalId = allChildsIdAndInternalId[model.id.value]
         println("/superapp/objects/${superApp}/${currentItemInternalId}?userSuperapp=${superApp}&userEmail=${currentUserEmail}")
         val response = api.put("/superapp/objects/${superApp}/${currentItemInternalId}?userSuperapp=${superApp}&userEmail=${currentUserEmail}", jsonObjectBody)
         if (response.ok())  {
@@ -590,7 +591,7 @@ class LoginController : Controller() {
 
         return largestId
     }
-    fun initItemsList(num: Int = 6): Boolean {
+    fun initItemsList(num: Int = 30): Boolean {
         println("initItemsList STARTED")
         println("/superapp/objects/${superApp}/${parentInternalObjectId}/children?userSuperapp=${superApp}&userEmail=${currentUserEmail}&size=${num}&page=0")
 
@@ -601,7 +602,7 @@ class LoginController : Controller() {
 
             // create the list of allChildrenObjectsList
             val allChildrenObjectsList = response.list().toModel<ObjectItems>()
-            allChildsNameAndInternalId.putAll(allChildrenObjectsList.associate { it.alias to it.objectId.internalObjectId })
+            allChildsIdAndInternalId.putAll(allChildrenObjectsList.associate { it.objectDetails.id to it.objectId.internalObjectId })
 
             val filteredList = allChildrenObjectsList.filter { it.active }
 
@@ -614,11 +615,13 @@ class LoginController : Controller() {
             println("allChildrenObjectsList: $allChildrenObjectsList, size = ${allChildrenObjectsList.size}")
             println("listOfItems: $listOfItems, size = ${listOfItems.size}")
 
-            lastItemId = listOfItems.maxByOrNull { it.id.value }!!.id.value
+            if (listOfItems.size != 0) {
+                lastItemId = listOfItems.maxByOrNull { it.id.value }!!.id.value
 //            if (lastItemId > listOfItems.size) {
 //                return initItemsList(lastItemId + 1)
 //            }
-            println("lastItemId: ${lastItemId}")
+                println("lastItemId: ${lastItemId}")
+            }
 
             items = listOfItems
             items.forEach {
