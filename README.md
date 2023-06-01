@@ -29,9 +29,17 @@ It provides a user-friendly interface for managing expenses and generating repor
 
 ## Configure
 * Go to `Edit Configurations` (On the top row click: `Run` → `Edit Configurations`).
+
+![img.png](img.png)
+
 * Click the small `+` sign and choose: `TornadoFx`.
-* Give the new run configuration a name of your choice.
+
+![img_2.png](img_2.png)
+
+* Give the new run configuration a name of your choice (e.g. `MyApp`).
 * In the `Use classpath of module:` choose: `ExpenseTracker.main`.
 * Then in the `App Class:` click the three dots and choose: `com.example.demo.app.MyApp`.
+
+![img_3.png](img_3.png)
 
 special thanks to the [MVN Repository](https://mvnrepository.com/search?q=jetBrains+exposed) site
