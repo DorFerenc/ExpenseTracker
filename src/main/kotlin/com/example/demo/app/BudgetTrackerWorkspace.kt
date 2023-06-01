@@ -41,8 +41,8 @@ class BudgetTrackerWorkspace : Workspace("Budget Tracker Workerspace", Navigatio
         // Bind visibility of views to login status
         loginController.loggedInProperty.addListener { _, _, isLoggedIn ->
             if (isLoggedIn) {
-                dock<ExpensesEditor>()
                 dock<ExpensesReport>()
+                dock<ExpensesEditor>()
             } else {
 //                expensesEditor.clearEditor()
 //                expensesReport.clearReport()
